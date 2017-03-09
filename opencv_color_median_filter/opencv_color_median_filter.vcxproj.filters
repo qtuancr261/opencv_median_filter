@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="opencv_grayscale_median_filter.cpp">
+    <ClCompile Include="opencv_color_median_filter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
