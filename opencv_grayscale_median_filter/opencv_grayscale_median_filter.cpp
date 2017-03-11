@@ -1,48 +1,47 @@
 #include <iostream>
+#include <cmath>
 #include <opencv2/opencv.hpp>
 using namespace std;
 using namespace cv;
-
+void medianFilter(Mat& input, Mat& output, int kernelSize)
+{
+	vector<int> newPixelValue;
+	int halfSize = kernelSize / 2;
+	for (int i{ halfSize }; i < input.rows - halfSize; i++)
+		for (int j{ halfSize }; j < input.cols - halfSize; j++)
+		{
+			newPixelValue.clear();
+			for (int x = { -halfSize }; x <= halfSize; x++)
+				for (int y = { -halfSize }; y <= halfSize; y++)
+				{
+					newPixelValue.push_back(input.at<uchar>(i + x, j + y));
+				}
+			sort(begin(newPixelValue), end(newPixelValue));
+			output.at<uchar>(i, j) = newPixelValue[newPixelValue.size()/2];
+		}
+}
 int main(int argc, char *argv[])
 {
-	Mat input_img, output_img;
+	double start{ (double)getTickCount() };
+	Mat input_img;
 	input_img = imread(argv[1], IMREAD_GRAYSCALE);
 	if (input_img.empty())
 	{
 		cerr << "Couldn't open image . Exit program...................." << endl;
 		return 1;
 	}
-	output_img = input_img.clone();
-	//--------------------------------------------------------------------------------------------
-	vector<vector<uchar>> pixel(input_img.rows, vector<uchar>(input_img.cols));
-	vector<uchar> newPixelValue;
-	for (int i{}; i < input_img.rows; i++)
-		for (int j{}; j < input_img.cols; j++)
-		{
-			pixel[i][j] = input_img.at<uchar>(i, j);
-		}
-	for (int i{}; i < input_img.rows; i++)
-		for (int j{}; j < input_img.cols; j++)
-		{
-			if ((i == 0 || j == 0) || (i == input_img.rows - 1 || j == input_img.cols - 1)) continue;
-			newPixelValue.clear();
-			for (int x = i - 1; x <= i + 1; x++)
-				for (int y = j - 1; y <= j + 1; y++)
-				{
-					newPixelValue.push_back(pixel[x][y]);
-				}
-			std::sort(std::begin(newPixelValue), std::end(newPixelValue));
-			pixel[i][j] = newPixelValue[newPixelValue.size() / 2];
-		}
-	for (int i{}; i < output_img.rows; i++)
-		for (int j{}; j < output_img.cols; j++)
-		{
-			output_img.at<uchar>(i, j) = pixel[i][j];
-		}
+	Mat output_img(input_img.clone());
+	//-------------------------------------------------------------------------------------------
+	int kernelSize{};
+	cout << " Nhap vao kich thuoc m cua ma tran Kernel: ";
+	cin >> kernelSize;
+	medianFilter(input_img, output_img, kernelSize);
 	namedWindow(argv[1], WINDOW_AUTOSIZE);
 	imshow(argv[1], input_img);
-	namedWindow("Median Filter 3x3", WINDOW_AUTOSIZE);
-	imshow("Median Filter 3x3", output_img);
+	namedWindow("Median Filter", WINDOW_AUTOSIZE);
+	imshow("Median Filter", output_img);
+	double end{ (double)(getTickCount() - start) / getTickFrequency() };
+	cout << " Timing : " << end << endl;
 	waitKey();
 	return 0;
 }
